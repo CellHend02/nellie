@@ -1,6 +1,6 @@
 [project]
 name = "nellie"
-version = "1.0.3"
+dynamic = ["version"]
 description = "Automated organelle segmentation, tracking, and hierarchical feature extraction in 2D/3D live-cell microscopy"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -31,8 +31,14 @@ docs = [
 ]
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=64", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+# Version is derived from the latest `vX.Y.Z` git tag at build time. Used by
+# the release workflow when a tag is pushed. fallback_version covers source
+# checkouts without git history (e.g., a tarball without .git/).
+fallback_version = "1.0.3"
 
 [tool.setuptools.packages.find]
 where = ["."]
