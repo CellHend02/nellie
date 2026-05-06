@@ -148,6 +148,16 @@ class NellieVisualizer(QWidget):
             except Exception as exc:
                 logger.warning(f"Could not set viewer to 3D display: {exc}")
 
+    def _add_labels_initially_hidden(self, data, **kwargs):
+        # napari add_labels crashes ("Volume visual needs a 3D array") when the
+        # viewer is in ndisplay=3 and visible=False is passed: the invisible
+        # layer skips the slice recompute, leaving a 2D placeholder that the 3D
+        # Volume visual rejects. Workaround: add visible, then hide.
+        kwargs.pop("visible", None)
+        layer = self.viewer.add_labels(data, **kwargs)
+        layer.visible = False
+        return layer
+
     def set_scale(self):
         """
         Set the scale for image display based on the resolution of the Z, Y, and X dimensions of the image.
@@ -225,12 +235,11 @@ class NellieVisualizer(QWidget):
         if self.im_instance_label is None or self.im_skel_relabelled is None:
             return
 
-        self.im_skel_relabelled_layer = self.viewer.add_labels(
+        self.im_skel_relabelled_layer = self._add_labels_initially_hidden(
             self.im_skel_relabelled,
             name="Labels: Branches",
             opacity=1,
             scale=self.scale,
-            visible=False,
         )
         self.im_instance_label_layer = self.viewer.add_labels(
             self.im_instance_label,
@@ -424,11 +433,10 @@ class NellieVisualizer(QWidget):
         if self.im_branch_label_reassigned is None or self.im_obj_label_reassigned is None:
             return
 
-        self.im_branch_label_reassigned_layer = self.viewer.add_labels(
+        self.im_branch_label_reassigned_layer = self._add_labels_initially_hidden(
             self.im_branch_label_reassigned,
             name="Reassigned px: Branches",
             scale=self.scale,
-            visible=False,
         )
         self.im_obj_label_reassigned_layer = self.viewer.add_labels(
             self.im_obj_label_reassigned,
