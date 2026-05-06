@@ -816,8 +816,13 @@ class Filter:
         vesselness = self.xp.zeros_like(frame, dtype=self.work_dtype)
         masks = self.xp.ones_like(frame, dtype=bool)
 
-        # Start from raw frame and build Gaussian scales incrementally
-        gauss = frame.astype(self.work_dtype, copy=False)
+        # Start from raw frame and build Gaussian scales incrementally.
+        # Must copy: the loop below uses output=gauss for in-place cascaded
+        # Gaussian, which would otherwise mutate the caller's `frame`. When
+        # `frame` is a view of the writable raw-image memmap (which happens
+        # whenever the raw dtype already matches work_dtype), in-place writes
+        # propagate to the OME-TIFF on disk and corrupt the raw file.
+        gauss = frame.astype(self.work_dtype, copy=True)
         prev_sigma = 0.0
 
         for sigma in self.sigmas:
