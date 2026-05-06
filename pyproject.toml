@@ -20,6 +20,7 @@ dependencies = [
     "matplotlib",
     "napari[all]",
     "imagecodecs",
+    "packaging",
 ]
 urls = {Homepage = "https://github.com/aelefebv/nellie"}
 

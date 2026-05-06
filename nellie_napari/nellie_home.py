@@ -148,27 +148,53 @@ class Home(QWidget):
         with the latest version on PyPI. If an update is available, it displays
         a warning to the user.
         """
+        from packaging.version import Version, InvalidVersion
+
         current = getattr(self.nellie, "current_version", None)
         latest = getattr(self.nellie, "latest_version", None)
 
         if current is None and latest is None:
             self.update_text.setText("Failed to determine Nellie version.\n")
             self.update_text.setStyleSheet("color: red")
-        elif current is None:
+            return
+        if current is None:
             self.update_text.setText("Failed to determine current version.\n")
             self.update_text.setStyleSheet("color: red")
-        elif latest is None:
+            return
+        if latest is None:
             self.update_text.setText(
                 "Failed to check for updates.\n"
                 "Please check your internet connection.\n"
                 f"Current: v{current}"
             )
             self.update_text.setStyleSheet("color: red")
-        elif current == latest:
+            return
+
+        try:
+            v_current = Version(current)
+            v_latest = Version(latest)
+        except InvalidVersion:
+            # If either version is unparseable, fall back to string comparison
+            # rather than crashing the home tab.
+            if current == latest:
+                self.update_text.setText(f"Nellie is up-to-date!\nv{current}")
+                self.update_text.setStyleSheet("color: green")
+            else:
+                self.update_text.setText(
+                    f"Could not compare versions.\nCurrent: v{current}\nLatest: v{latest}"
+                )
+                self.update_text.setStyleSheet("color: red")
+            return
+
+        # setuptools-scm-derived dev/pre-release builds (e.g. 1.0.4.dev5+g1abcdef)
+        # are typically ahead of the latest published release; don't flag them as outdated.
+        if v_current.is_devrelease or v_current.is_prerelease or v_current.local:
             self.update_text.setText(
-                "Nellie is up-to-date!\n"
-                f"v{current}"
+                f"Development build\nv{current}\n(latest release: v{latest})"
             )
+            self.update_text.setStyleSheet("color: gray")
+        elif v_current >= v_latest:
+            self.update_text.setText(f"Nellie is up-to-date!\nv{current}")
             self.update_text.setStyleSheet("color: green")
         else:
             self.update_text.setText(
