@@ -377,6 +377,15 @@ class Filter:
         # Avoid division by zero downstream
         if gamma <= 0:
             gamma = np.finfo(np.float32).eps
+
+        # Hessian eigenvalues are in intensity/spacing^2 (physical-spaced gradient),
+        # but gamma is computed from raw intensity. Rescale so gamma_sq matches
+        # the units of s_sq in _filter_hessian; otherwise (1-exp(-s_sq/gamma_sq))
+        # saturates and vesselness magnitudes blow up vs the pre-spacing version.
+        spacing = self._get_spacing(gauss_volume.ndim)
+        spacing_geomean = float(np.prod(spacing)) ** (1.0 / gauss_volume.ndim)
+        if spacing_geomean > 0:
+            gamma = gamma / (spacing_geomean ** 2)
         return gamma
 
     def _estimate_gamma(self, frame, sigma):
@@ -807,8 +816,13 @@ class Filter:
         vesselness = self.xp.zeros_like(frame, dtype=self.work_dtype)
         masks = self.xp.ones_like(frame, dtype=bool)
 
-        # Start from raw frame and build Gaussian scales incrementally
-        gauss = frame.astype(self.work_dtype, copy=False)
+        # Start from raw frame and build Gaussian scales incrementally.
+        # Must copy: the loop below uses output=gauss for in-place cascaded
+        # Gaussian, which would otherwise mutate the caller's `frame`. When
+        # `frame` is a view of the writable raw-image memmap (which happens
+        # whenever the raw dtype already matches work_dtype), in-place writes
+        # propagate to the OME-TIFF on disk and corrupt the raw file.
+        gauss = frame.astype(self.work_dtype, copy=True)
         prev_sigma = 0.0
 
         for sigma in self.sigmas:
