@@ -1900,6 +1900,8 @@ class Components:
         self.organelle_extent = []
         self.organelle_solidity = []
         self.reassigned_label = []
+        #Added by CH
+        self.organelle_orientation = []
 
         self.image_name = []
 
@@ -1910,6 +1912,8 @@ class Components:
             "organelle_extent",
             "organelle_solidity",
             "reassigned_label",
+            # Added by CH
+            "organelle_orientation",
         ]
 
         self.features_to_save = self.stats_to_aggregate + ["x", "y", "z"]
@@ -1971,11 +1975,17 @@ class Components:
             try:
                 maj_axis = region.major_axis_length
                 min_axis = region.minor_axis_length
+                #Added by CH
+                orientation = region.orientation
             except ValueError:
                 maj_axis = np.nan
                 min_axis = np.nan
+                #Added by CH
+                orient = np.nan
             axis_length_maj.append(maj_axis)
             axis_length_min.append(min_axis)
+            #Added by CH
+            orientations.append(orientation)
             extent.append(region.extent)
             solidity.append(region.solidity)
             if not self.hierarchy.im_info.no_z:
