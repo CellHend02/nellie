@@ -1780,6 +1780,17 @@ class Branches:
             except ValueError:
                 maj_axis = np.nan
                 min_axis = np.nan
+
+            #Added by CH
+            try:
+                orientation = region.orientation
+            except (AttributeError, ValueError):
+                orientation = np.nan
+            axis_length_maj.append(maj_axis)
+            axis_length_min.append(min_axis)
+            #Added by CH
+            orientations.append(orientation)
+            
             axis_length_maj.append(maj_axis)
             axis_length_min.append(min_axis)
             extent.append(region.extent)
@@ -1975,13 +1986,14 @@ class Components:
             try:
                 maj_axis = region.major_axis_length
                 min_axis = region.minor_axis_length
-                #Added by CH
-                orientation = region.orientation
             except ValueError:
                 maj_axis = np.nan
                 min_axis = np.nan
-                #Added by CH
-                orient = np.nan
+            #Added by CH
+            try:
+                orientation = region.orientation
+            except (AttributeError, ValueError):
+                orientation = np.nan
             axis_length_maj.append(maj_axis)
             axis_length_min.append(min_axis)
             #Added by CH
@@ -2002,6 +2014,8 @@ class Components:
         self.organelle_extent.append(extent)
         self.organelle_solidity.append(solidity)
         self.reassigned_label.append(reassigned_label)
+        #Added by CH
+        self.organelle_orientations.append(orientations)
         self.z.append(z)
         self.y.append(y)
         self.x.append(x)
@@ -2023,6 +2037,8 @@ class Components:
             self.organelle_extent.append([])
             self.organelle_solidity.append([])
             self.reassigned_label.append([])
+            #Added by CH
+            self.organelle_orientations.append([])
             self.z.append([])
             self.y.append([])
             self.x.append([])
