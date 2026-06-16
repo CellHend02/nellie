@@ -1780,17 +1780,6 @@ class Branches:
             except ValueError:
                 maj_axis = np.nan
                 min_axis = np.nan
-
-            #Added by CH
-            try:
-                orientation = region.orientation
-            except (AttributeError, ValueError):
-                orientation = np.nan
-            axis_length_maj.append(maj_axis)
-            axis_length_min.append(min_axis)
-            #Added by CH
-            orientations.append(orientation)
-            
             axis_length_maj.append(maj_axis)
             axis_length_min.append(min_axis)
             extent.append(region.extent)
@@ -1911,7 +1900,7 @@ class Components:
         self.organelle_extent = []
         self.organelle_solidity = []
         self.reassigned_label = []
-        #Added by CH
+        # Added by CH: export major-axis orientation (radians) for organelle ellipses.
         self.organelle_orientation = []
 
         self.image_name = []
@@ -1922,9 +1911,9 @@ class Components:
             "organelle_axis_length_min",
             "organelle_extent",
             "organelle_solidity",
-            "reassigned_label",
             # Added by CH
             "organelle_orientation",
+            "reassigned_label",
         ]
 
         self.features_to_save = self.stats_to_aggregate + ["x", "y", "z"]
@@ -1971,6 +1960,8 @@ class Components:
         axis_length_min = []
         extent = []
         solidity = []
+        # Added by CH
+        orientations = []
         reassigned_label = []
         z = []
         y = []
@@ -1989,14 +1980,14 @@ class Components:
             except ValueError:
                 maj_axis = np.nan
                 min_axis = np.nan
-            #Added by CH
+            # Added by CH: skimage orientation in radians (-pi/2 to pi/2); NaN if unavailable (e.g. 3D).
             try:
                 orientation = region.orientation
             except (AttributeError, ValueError):
                 orientation = np.nan
             axis_length_maj.append(maj_axis)
             axis_length_min.append(min_axis)
-            #Added by CH
+            # Added by CH
             orientations.append(orientation)
             extent.append(region.extent)
             solidity.append(region.solidity)
@@ -2014,8 +2005,8 @@ class Components:
         self.organelle_extent.append(extent)
         self.organelle_solidity.append(solidity)
         self.reassigned_label.append(reassigned_label)
-        #Added by CH
-        self.organelle_orientations.append(orientations)
+        # Added by CH -> CSV column organelle_orientation_raw
+        self.organelle_orientation.append(orientations)
         self.z.append(z)
         self.y.append(y)
         self.x.append(x)
@@ -2037,8 +2028,8 @@ class Components:
             self.organelle_extent.append([])
             self.organelle_solidity.append([])
             self.reassigned_label.append([])
-            #Added by CH
-            self.organelle_orientations.append([])
+            # Added by CH
+            self.organelle_orientation.append([])
             self.z.append([])
             self.y.append([])
             self.x.append([])
