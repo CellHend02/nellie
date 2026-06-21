@@ -1983,7 +1983,7 @@ class Components:
             # Added by CH: skimage orientation in radians (-pi/2 to pi/2); NaN if unavailable (e.g. 3D).
             try:
                 orientation = region.orientation
-            except (AttributeError, ValueError):
+            except (AttributeError, ValueError, NotImplementedError):
                 orientation = np.nan
             axis_length_maj.append(maj_axis)
             axis_length_min.append(min_axis)
